@@ -1,0 +1,1 @@
+{"runners":{"configs":{"recommend":{"ram":256,"variables":{},"options":{}}},"default":"system:/java/web/tomcat7"},"builders":{"configs":{},"default":"maven"},"mixinTypes":[],"type":"maven","attributes":{"languageVersion":["1.6"],"language":["java"]},"description":"UI for the onlinecv rest interface"}
