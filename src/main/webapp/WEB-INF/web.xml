@@ -15,7 +15,7 @@
         <init-param>
             <description>Vaadin UI to display</description>
             <param-name>UI</param-name>
-            <param-value>com.codenvy.example.vaadin.AddressbookUI</param-value>
+            <param-value>com.beisert.onlinecv.vaadin.OnlineCVUI</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
