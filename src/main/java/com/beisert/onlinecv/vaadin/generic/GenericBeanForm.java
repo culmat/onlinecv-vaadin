@@ -24,7 +24,17 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-
+/**
+ * Generates a form through reflection by looping through the properties of the provided bean.
+ * 
+ * The UI generation is customized by the {@link GenericBeanFormConfig}.
+ * 
+ * The prop order can be provided by the {@link GenericBeanFormConfig} or can be taken from
+ * a @XmlType(propOrder={}) of the specified bean.
+ * 
+ * @author dbe
+ *
+ */
 public class GenericBeanForm extends VerticalLayout {
 
 	private InitParameter initParam;

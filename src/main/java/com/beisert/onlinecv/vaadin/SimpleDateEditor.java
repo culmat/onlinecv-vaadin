@@ -7,11 +7,17 @@ import com.beisert.onlinecv.vaadin.generic.BeanPropertyEditor;
 import com.beisert.onlinecv.vaadin.generic.BeanPropertyEditor.CreateComponentParameter;
 import com.beisert.onlinecv.vaadin.util.DateUtil;
 import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
+import com.beisert.onlinecv.vaadin.xsd.I18NText;
 import com.beisert.onlinecv.vaadin.xsd.SimpleDate;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 
+/**
+ * Generates a text field for bean properties of type {@link SimpleDate}.
+ * @author dbe
+ *
+ */
 public class SimpleDateEditor extends DateField implements BeanPropertyEditor{
 	
 	

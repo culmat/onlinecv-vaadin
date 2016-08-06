@@ -10,7 +10,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Represents the popup window to edit a single Bean in a popup
+ * Represents the popup window to edit a single Bean in a popup. It is a wrapper around
+ * a {@link GenericBeanForm}.
  * 
  * @author dbe
  *

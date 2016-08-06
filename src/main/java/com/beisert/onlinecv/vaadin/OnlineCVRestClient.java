@@ -15,7 +15,7 @@ import javax.xml.bind.JAXBException;
 import com.beisert.onlinecv.vaadin.xsd.OnlineCV;
 
 /**
- * Rest interface for the online cv
+ * Rest interface for the online cv.
  * @author dbe
  *
  */
@@ -49,6 +49,7 @@ public class OnlineCVRestClient {
 	 Client client = ClientBuilder.newClient();
 	 client.register(OnlineCV.class);
 	 WebTarget target = client.target(serverUrl).path(rootPath +"/onlinecv");
+	 System.out.println(target.getUri());
 	 Builder builder = target.request();
 	 List<OnlineCV> result =
 	 builder.accept(MediaType.APPLICATION_JSON).get(new GenericType<List<OnlineCV>>(){});
@@ -76,6 +77,22 @@ public class OnlineCVRestClient {
 
 		Response resp = builder.accept(MediaType.APPLICATION_JSON).post(Entity.entity(cv,MediaType.APPLICATION_JSON));
 		return resp;
+	}
+
+	public String getServerUrl() {
+		return serverUrl;
+	}
+
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
+	}
+
+	public String getRootPath() {
+		return rootPath;
+	}
+
+	public void setRootPath(String rootPath) {
+		this.rootPath = rootPath;
 	}
 
 }

@@ -14,9 +14,7 @@ import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.Component;
 
 /**
- * Because type information is erased from Collections at runtime we need to
- * give the forms a little hint. This can be place for additional customization
- * of the view.
+ * This class serves hints and UI customization to the {@link GenericBeanForm} classes in this package.
  * 
  * @author dbe
  *

@@ -26,7 +26,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Generates a table of bean property that has the type of list.
+ * Generates a table of a parent bean property that is of type list.
  * 
  * @author dbe
  *

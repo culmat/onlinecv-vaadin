@@ -14,6 +14,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
+/**
+ * Generates a text field for bean properties of type {@link I18NText}.
+ * @author dbe
+ *
+ */
 public class I18NTextEditor implements BeanPropertyEditor{
 	
 	Object bean;

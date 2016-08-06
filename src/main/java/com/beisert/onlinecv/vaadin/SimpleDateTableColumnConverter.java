@@ -10,6 +10,11 @@ import com.beisert.onlinecv.vaadin.xsd.I18NText;
 import com.beisert.onlinecv.vaadin.xsd.SimpleDate;
 import com.vaadin.data.util.converter.Converter;
 
+/**
+ * A converter that converts {@link SimpleDate} to readable string. This is used in the table columns.
+ * @author dbe
+ *
+ */
 public class SimpleDateTableColumnConverter implements Converter<String, SimpleDate>{
 	
 	private static final long serialVersionUID = 1L;

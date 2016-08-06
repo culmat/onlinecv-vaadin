@@ -1,5 +1,6 @@
 package com.beisert.onlinecv.vaadin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -7,6 +8,7 @@ import javax.ws.rs.core.Response;
 import com.beisert.onlinecv.vaadin.generic.GenericBeanForm;
 import com.beisert.onlinecv.vaadin.generic.GenericBeanFormConfig;
 import com.beisert.onlinecv.vaadin.generic.PlainIntegerConverter;
+import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.beisert.onlinecv.vaadin.xsd.AddressData;
 import com.beisert.onlinecv.vaadin.xsd.CommunicationData;
 import com.beisert.onlinecv.vaadin.xsd.GenericContainer;
@@ -25,6 +27,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -33,8 +36,10 @@ import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Table;
@@ -43,6 +48,12 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Entry point of the application. This is the main UI.
+ * 
+ * @author dbe
+ *
+ */
 @Title("Online CV")
 @Theme("valo")
 public class OnlineCVUI extends UI {
@@ -107,8 +118,13 @@ public class OnlineCVUI extends UI {
 
 	private void initLayout() {
 
+		VerticalLayout mainLayout = new VerticalLayout();
+		// Header
+		HorizontalLayout header = initHeader();
+		mainLayout.addComponent(header);
 		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
-		setContent(splitPanel);
+		mainLayout.addComponent(splitPanel);
+		setContent(mainLayout);
 
 		VerticalLayout leftLayout = new VerticalLayout();
 		splitPanel.addComponent(leftLayout);
@@ -133,6 +149,56 @@ public class OnlineCVUI extends UI {
 		editAreaLayout.setVisible(false);
 	}
 
+	public HorizontalLayout initHeader() {
+		HorizontalLayout header = new HorizontalLayout();
+		header.setSpacing(true);
+		
+		String[] fields = { "serverUrl", "rootPath" };
+		
+		BeanItem<OnlineCVRestClient> item = new BeanItem<OnlineCVRestClient>(this.restClient,fields);
+		
+		for(String fieldName: fields){
+			Label l = new Label(GenericBeanFormConfig.camelCaseToHumanReadable(fieldName));
+			l.setStyleName("v-align-middle", true);
+			header.addComponent(l);
+			TextField tf = new TextField( item.getItemProperty(fieldName));
+			tf.setNullRepresentation("");
+			tf.setBuffered(false);
+			tf.setStyleName(ValoTheme.TEXTFIELD_SMALL);
+			header.addComponent(tf);
+		}
+		
+		Button buttonLoad = new Button("Load CVs",FontAwesome.REFRESH);
+		buttonLoad.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		
+		
+		buttonLoad.addClickListener(evt -> {
+			loadCVList();
+		});
+		header.addComponent(buttonLoad);
+		
+		
+		final String urlMain = restClient.serverUrl + restClient.rootPath + "/onlinecv";
+		
+		final String[][] urls = {
+				{"Open REST: All CVs",urlMain +"?format=json"},
+				{"Open REST: CV xsd",urlMain +"/xsd"},
+		};
+		for(int i=0;i<urls.length;i++){
+			String caption = urls[i][0];
+			final String url = urls[i][1];
+			final String window = "window"+i;
+			Button button = new Button(caption,FontAwesome.EXTERNAL_LINK);
+			button.setStyleName(ValoTheme.BUTTON_LINK);
+			
+			button.addClickListener(evt -> {
+				getUI().getPage().open(url,window);
+			});
+			header.addComponent(button);
+		}
+		return header;
+	}
+
 	private void initEditor() {
 		HorizontalLayout buttonRow = new HorizontalLayout();
 		// buttonRow.addComponent(removeCVButton);
@@ -149,14 +215,11 @@ public class OnlineCVUI extends UI {
 
 		searchField.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
-		searchField.addTextChangeListener(new TextChangeListener() {
-			public void textChange(final TextChangeEvent event) {
+		searchField.addTextChangeListener(evt -> {
+			loadCVList();
+			cvListContainer.removeAllContainerFilters();
+			cvListContainer.addContainerFilter(new CVFilter(evt.getText()));
 
-				loadCVList();
-				cvListContainer.removeAllContainerFilters();
-				cvListContainer.addContainerFilter(new CVFilter(event.getText()));
-
-			}
 		});
 
 	}
@@ -254,7 +317,14 @@ public class OnlineCVUI extends UI {
 	}
 
 	private void loadCVList() {
-		List<OnlineCV> list = restClient.getAllCVs();
+		List<OnlineCV> list = new ArrayList<>();
+		try {
+			list = restClient.getAllCVs();
+			
+		} catch (Exception e) {
+			Notification.show(e.toString() , Type.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 		this.cvListContainer.removeAllItems();
 		this.cvListContainer.addAll(list);
 		// Select selected in editor in list
