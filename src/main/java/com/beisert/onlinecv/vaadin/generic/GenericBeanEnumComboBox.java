@@ -4,6 +4,8 @@ import java.beans.PropertyDescriptor;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -22,29 +24,61 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class GenericBeanEnumComboBox extends ComboBox{
 	
+	private static final long serialVersionUID = 1L;
 	
-	private PropertyDescriptor property;
-	private Object parentBean; 
+	private InitParameter initParam;
 	
-	public GenericBeanEnumComboBox init(final String caption, final Object parentBean, final PropertyDescriptor property, final GenericBeanFormConfig cfg){
+	public static class InitParameter {
+		private String caption;
+		private Object parentBean;
+		private PropertyDescriptor property;
+		private GenericBeanFormConfig cfg;
+
+		public InitParameter(String caption, Object parentBean, PropertyDescriptor property,
+				GenericBeanFormConfig cfg) {
+			this.caption = caption;
+			this.parentBean = parentBean;
+			this.property = property;
+			this.cfg = cfg;
+		}
+
+		public String getCaption() {
+			return caption;
+		}
+
+		public Object getParentBean() {
+			return parentBean;
+		}
+
+		public PropertyDescriptor getProperty() {
+			return property;
+		}
+
+		public GenericBeanFormConfig getCfg() {
+			return cfg;
+		}
+	}
+	
+	public GenericBeanEnumComboBox init(final InitParameter param){
 		
-		this.parentBean = parentBean;
-		this.property = property;
+		this.initParam = param;
 		
-		Class<?> enumClazz = property.getPropertyType();
+		Class<?> enumClazz = param.getProperty().getPropertyType();
 		Object[] enumConstants = enumClazz.getEnumConstants();
 		
-		setCaption(caption);
+		setCaption(param.getCaption());
 		setBuffered(false);
 		
 		
 		for(Object enumVal : enumConstants){
 			
 			addItem(enumVal);
-			setItemCaption(enumVal, enumVal.toString());
+			String itemCaption = enumVal.toString();
+			itemCaption = WordUtils.capitalizeFully(itemCaption, new char[]{'_'}).replaceAll("_", " ");
+			setItemCaption(enumVal, itemCaption);
 		}
 		
-		Object val = ReflectionUtil.getPropertyValue(parentBean, property);
+		Object val = ReflectionUtil.getPropertyValue(param.getParentBean(), param.getProperty());
 		select(val);
 		
 		
@@ -54,13 +88,17 @@ public class GenericBeanEnumComboBox extends ComboBox{
 			public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
 				//This is the enum
 				Object value = event.getProperty().getValue();
-				ReflectionUtil.setPropertyValue(parentBean, property, value);
+				ReflectionUtil.setPropertyValue(param.getParentBean(), param.getProperty(), value);
 				select(value);
 			}
 		};
 		addValueChangeListener(listener);
 		
 		return this;
+	}
+
+	public InitParameter getInitParam() {
+		return initParam;
 	}
 	
 	

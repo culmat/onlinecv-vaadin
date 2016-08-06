@@ -7,7 +7,7 @@
     <xs:sequence>
       <xs:element name="_id" type="xs:string" minOccurs="0"/>
       <xs:element name="user" type="xs:string" minOccurs="0"/>
-      <xs:element name="cvName" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="personalData" type="personalData" minOccurs="0"/>
       <xs:element name="userSkills" type="userSkill" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="projects" type="projectData" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
@@ -72,7 +72,7 @@
       <xs:element name="from" type="simpleDate" minOccurs="0"/>
       <xs:element name="to" type="simpleDate" minOccurs="0"/>
       <xs:element name="customer" type="xs:string" minOccurs="0"/>
-      <xs:element name="additionalInfo" type="genericContainer" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="additionalInfos" type="genericContainer" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -85,7 +85,7 @@
 
   <xs:complexType name="languageText">
     <xs:sequence>
-      <xs:element name="locale" type="xs:string" minOccurs="0"/>
+      <xs:element name="locale" type="locale" minOccurs="0"/>
       <xs:element name="text" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
@@ -122,6 +122,15 @@
       <xs:enumeration value="BEGINNER"/>
       <xs:enumeration value="GOOD_EXPERIENCE"/>
       <xs:enumeration value="EXPERT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="locale">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ENGLISH"/>
+      <xs:enumeration value="FRENCH"/>
+      <xs:enumeration value="ITALIAN"/>
+      <xs:enumeration value="GERMAN"/>
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

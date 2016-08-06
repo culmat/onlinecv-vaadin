@@ -3,8 +3,7 @@ package com.beisert.onlinecv.vaadin;
 import java.beans.PropertyDescriptor;
 
 import com.beisert.onlinecv.vaadin.generic.BeanPropertyEditor;
-import com.beisert.onlinecv.vaadin.generic.GenericBeanFormConfig;
-import com.beisert.onlinecv.vaadin.generic.GenericBeanTable;
+import com.beisert.onlinecv.vaadin.generic.GenericBeanFormWindow;
 import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.beisert.onlinecv.vaadin.xsd.I18NText;
 import com.vaadin.data.util.BeanItem;
@@ -22,6 +21,7 @@ public class I18NTextEditor implements BeanPropertyEditor{
 	String caption;
 	
 	I18NTextWrapper valueWrapper;
+	
 	
 	public Object getBean() {
 		return bean;
@@ -51,16 +51,16 @@ public class I18NTextEditor implements BeanPropertyEditor{
 	}
 	
 	@Override
-	public Component createComponent(final GenericBeanFormConfig cfg, final Object bean, final PropertyDescriptor property, final String caption) {
+	public Component createComponent(CreateComponentParameter parameterObject) {
 		
 		final HorizontalLayout layout = new HorizontalLayout();
-		layout.setCaption(caption);
+		layout.setCaption(parameterObject.getCaption());
 		
-		I18NText txt = (I18NText) ReflectionUtil.getPropertyValue(bean,property);
+		I18NText txt = (I18NText) ReflectionUtil.getPropertyValue(parameterObject.getBean(),parameterObject.getProperty());
 		//Make sure an instance exists.
 		if(txt == null) {
 			txt = new I18NText();
-			ReflectionUtil.setPropertyValue(bean,property,txt);
+			ReflectionUtil.setPropertyValue(parameterObject.getBean(),parameterObject.getProperty(),txt);
 		}
 		
 		this.valueWrapper = new I18NTextWrapper(txt);
@@ -77,7 +77,15 @@ public class I18NTextEditor implements BeanPropertyEditor{
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				GenericBeanTable.openPopup(layout, "Edit", valueWrapper.txt, cfg);
+				GenericBeanFormWindow popup = new GenericBeanFormWindow();
+				popup.getCancelButton().setVisible(false);
+				popup.showWindow(new GenericBeanFormWindow.InitParameter(
+						layout, 
+						"Edit", 
+						valueWrapper.txt, 
+						parameterObject.getCfg())
+				);
+				
 			}
 		};
 		openPopup.addClickListener(listener );

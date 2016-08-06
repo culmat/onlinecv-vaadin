@@ -11,23 +11,25 @@ import com.beisert.onlinecv.vaadin.xsd.SimpleDate;
 import com.vaadin.data.util.converter.Converter;
 
 public class SimpleDateTableColumnConverter implements Converter<String, SimpleDate>{
+	
+	private static final long serialVersionUID = 1L;
 
 	@Override
-	public SimpleDate convertToModel(String value, Locale locale)
+	public SimpleDate convertToModel(String value, Class<? extends SimpleDate> targetType, Locale locale)
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
-		//editing data in table is not supported
+		// editing data not needed
 		return null;
 	}
-	
 
 	@Override
-	public String convertToPresentation(SimpleDate value, Locale locale)
+	public String convertToPresentation(SimpleDate value, Class<? extends String> targetType, Locale locale)
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		if(value == null) return "";
 		Date d = DateUtil.createDate(value.getYear(), value.getMonth(), value.getDay());
 		return format.format(d);
 	}
+
 
 	@Override
 	public Class<SimpleDate> getModelType() {

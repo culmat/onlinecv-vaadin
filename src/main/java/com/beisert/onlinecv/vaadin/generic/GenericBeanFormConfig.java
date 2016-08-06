@@ -87,6 +87,7 @@ public class GenericBeanFormConfig {
 	 * Can adapt a bean in a list, for easier display
 	 */
 	Map<Class<?>,Class<? extends Converter<String, ?>>> tableColumnConverter = new LinkedHashMap<Class<?>,Class<? extends Converter<String,?>>>();
+	Map<Class<?>,Class<? extends Converter<String, ?>>>  formFieldConverter = new LinkedHashMap<Class<?>,Class<? extends Converter<String, ?>>> ();
 	
 
 	public GenericBeanFormConfig givePropertyHint(Class<?> clazz, String property, Class<?> propertyType) {
@@ -159,25 +160,42 @@ public class GenericBeanFormConfig {
 	 * @return
 	 */
 	public String generateCaptionForProperty(Object bean, String propertyName){
+		Class<?> clazz = bean.getClass();
+		return generateCaptionForProperty(propertyName, clazz);
 		
-		String caption = getPropertyCaptionOrNull(bean.getClass(), propertyName);
+	}
+
+	public String generateCaptionForProperty(String propertyName, Class<?> clazz) {
+		String caption = getPropertyCaptionOrNull(clazz, propertyName);
 		if(caption !=null){
 			return caption;
 		}
 		
-		String[] arr = StringUtils.splitByCharacterTypeCamelCase(propertyName);
+		return camelCaseToHumanReadable(propertyName);
+	}
+
+	public static String camelCaseToHumanReadable(String camelCase) {
+		String[] arr = StringUtils.splitByCharacterTypeCamelCase(camelCase);
 		
 		if(arr.length>0){
 			arr[0] = StringUtils.capitalize(arr[0]);
 		}
 		return StringUtils.join(arr," ");
-		
 	}
 
 	public void setTableColumnConverter(Class<?> source, Class<? extends Converter<String,?>> converter) {
 		this.tableColumnConverter.put(source, converter);
 	}
+	public Class<? extends Converter<String,?>> getTableColumnConverter(Class<?> source){
+		return this.tableColumnConverter.get(source);
+	}
 	
+	public void setFormFieldConverter(Class<?> source, Class<? extends Converter<String,?>> converter) {
+		this.formFieldConverter.put(source, converter);
+	}
+	public Class<? extends Converter<String,?>> getFormFieldConverter(Class<?> source){
+		return this.formFieldConverter.get(source);
+	}
 	public void setShownPropertiesInList(Class<?> clazz, String ...props){
 		getOrCreateBeanConfig(clazz).shownPropertiesInList = Arrays.asList(props);
 	}
@@ -186,9 +204,7 @@ public class GenericBeanFormConfig {
 		return getOrCreateBeanConfig(clazz).shownPropertiesInList; 
 	}
 	
-	public Class<? extends Converter<String,?>> getTableColumnConverter(Class<?> source){
-		return this.tableColumnConverter.get(source);
-	}
+	
 	
 	
 

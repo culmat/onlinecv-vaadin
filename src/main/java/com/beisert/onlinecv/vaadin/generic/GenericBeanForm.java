@@ -12,8 +12,11 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlType;
 
+import com.beisert.onlinecv.vaadin.generic.BeanPropertyEditor.CreateComponentParameter;
+import com.beisert.onlinecv.vaadin.generic.GenericBeanTable.InitParameter;
 import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -24,75 +27,80 @@ import com.vaadin.ui.VerticalLayout;
 
 public class GenericBeanForm extends VerticalLayout {
 
-	private Object bean;
-	private GenericBeanFormConfig cfg;
+	private InitParameter initParam;
 	
-	
-	public GenericBeanForm init(String caption, Object bean, GenericBeanFormConfig cfg) {
+	public static class InitParameter {
+		private String caption;
+		private Object bean;
+		private GenericBeanFormConfig cfg;
+
+		public InitParameter(String caption, Object bean, GenericBeanFormConfig cfg) {
+			this.caption = caption;
+			this.bean = bean;
+			this.cfg = cfg;
+		}
+
+		public String getCaption() {
+			return caption;
+		}
+
+		public void setCaption(String caption) {
+			this.caption = caption;
+		}
+
+		public Object getBean() {
+			return bean;
+		}
+
+		public void setBean(Object bean) {
+			this.bean = bean;
+		}
+
+		public GenericBeanFormConfig getCfg() {
+			return cfg;
+		}
+
+		public void setCfg(GenericBeanFormConfig cfg) {
+			this.cfg = cfg;
+		}
+	}
+	public GenericBeanForm init(final InitParameter param) {
+		this.components.clear();
 		
-		this.bean = bean;
-		this.cfg = cfg;
+		this.initParam = param;
+		
 		FormLayout form = new FormLayout();
 		form.setMargin(true);
-		setCaption(caption);
+		setCaption(param.getCaption());
 		
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.addTab(form, "Details");
 
-		Map<String, PropertyDescriptor> props = ReflectionUtil.getPropertyDescriptors(bean.getClass(), "class");
-		Collection<String> keys = props.keySet();
-		if (bean.getClass().isAnnotationPresent(XmlType.class)) {
-			XmlType xmlType = bean.getClass().getAnnotation(XmlType.class);
-			keys = Arrays.asList(xmlType.propOrder());
-		}
+		Map<String, PropertyDescriptor> props = ReflectionUtil.getPropertyDescriptors(param.getBean().getClass(), "class");
+		Collection<String> keys = getPropertiesToBeShown(param, props);
 
 		for (String name : keys) {
-			if (name == null || name.trim().length() == 0) {
-				System.out.println(bean.getClass() + "!!!! Property is empty!");
-				continue;
-			}
+			
 			PropertyDescriptor desc = props.get(name);
 			if(desc == null) {
-				throw new IllegalStateException(bean + " Property " + name + " not found");
+				throw new IllegalStateException(param.getBean() + " Property " + name + " not found");
 			}
 			Class<?> type = desc.getPropertyType();
 			
-			BeanPropertyEditor editor = cfg.getPropertyEditorOrNull(type);
+			BeanPropertyEditor editor = param.getCfg().getPropertyEditorOrNull(type);
 			
 			if(editor != null){
-				Component comp = editor.createComponent(cfg, bean, desc, cfg.generateCaptionForProperty(bean, name));
-				form.addComponent(comp);
+				createFromBeanEditor(param, form, name, desc, editor);
 			}
 			else if (isSimpleType(type)) {
-				BeanItem<Object> item = new BeanItem<Object>(bean, new String[] { name });
-				com.vaadin.ui.TextField text = new TextField(cfg.generateCaptionForProperty(bean, name), item.getItemProperty(name));
-				text.setNullRepresentation("");
-				text.setBuffered(false);
-				form.addComponent(text);
+				createTextField(param, form, name, type);
 			} else if (type.isEnum()) {
-				GenericBeanEnumComboBox cbo = new GenericBeanEnumComboBox();
-				cbo.init(cfg.generateCaptionForProperty(bean, name), bean, desc, cfg);
-				form.addComponent(cbo);
+				createDropDown(param, form, name, desc);
 			} else if (type.isAssignableFrom(List.class)) {
-				// table
-				List list = (List) ReflectionUtil.getPropertyValue(bean, desc);
-				
-				Class<?> classHint = cfg.getPropertyClassHint(bean,name);
-				if(classHint != null) {
-					String subCaption = cfg.generateCaptionForProperty(bean, name);
-					tabSheet.addTab(new GenericBeanTable().init(subCaption, name, list, classHint, cfg) , subCaption);
-				}else{
-					System.out.println(bean + "." + name + " is ignored because no classhint available");
-				}
-
+				createTable(param, tabSheet, name, desc);
 			} else if (type.isAnnotationPresent(XmlType.class)) {
 				//This is sub struct
-				Object child = ReflectionUtil.getPropertyValue(bean, desc);
-				// Avoid endless loops
-				if (child != bean){
-					String subCaption = cfg.generateCaptionForProperty(bean, name);
-					tabSheet.addTab(new GenericBeanForm().init(caption, child, cfg), subCaption);
-				}
+				createSubForm(param, tabSheet, name, desc);
 			}
 		}
 		if(tabSheet.getComponentCount()==1){
@@ -104,6 +112,60 @@ public class GenericBeanForm extends VerticalLayout {
 		return this;
 	}
 
+	public void createFromBeanEditor(final InitParameter param, FormLayout form, String name, PropertyDescriptor desc,
+			BeanPropertyEditor editor) {
+		Component comp = editor.createComponent(new CreateComponentParameter(param.getCfg().generateCaptionForProperty(param.getBean(), name), param.getBean(), desc, param.getCfg()));
+		form.addComponent(comp);
+	}
+
+	public void createSubForm(final InitParameter param, TabSheet tabSheet, String name, PropertyDescriptor desc) {
+		Object child = ReflectionUtil.getPropertyValue(param.getBean(), desc);
+		// Avoid endless loops
+		if (child != param.getBean()){
+			String subCaption = param.getCfg().generateCaptionForProperty(param.getBean(), name);
+			tabSheet.addTab(new GenericBeanForm().init(new InitParameter(param.getCaption(), child, param.getCfg())), subCaption);
+		}
+	}
+
+	public void createTextField(final InitParameter param, FormLayout form, String name, Class<?> type) {
+		BeanItem<Object> item = new BeanItem<Object>(param.getBean(), new String[] { name });
+		com.vaadin.ui.TextField text = new TextField(param.getCfg().generateCaptionForProperty(param.getBean(), name), item.getItemProperty(name));
+		text.setNullRepresentation("");
+		Class<? extends Converter<String, ?>> formFieldConverter = param.getCfg().getFormFieldConverter(type);
+		if(formFieldConverter!=null){
+			text.setConverter(ReflectionUtil.newInstance(formFieldConverter));
+		}
+		text.setBuffered(false);
+		form.addComponent(text);
+	}
+
+	public void createDropDown(final InitParameter param, FormLayout form, String name, PropertyDescriptor desc) {
+		GenericBeanEnumComboBox cbo = new GenericBeanEnumComboBox();
+		cbo.init(new GenericBeanEnumComboBox.InitParameter(param.getCfg().generateCaptionForProperty(param.getBean(), name), param.getBean(), desc, param.getCfg()));
+		form.addComponent(cbo);
+	}
+
+	public void createTable(final InitParameter param, TabSheet tabSheet, String name, PropertyDescriptor desc) {
+		List list = (List) ReflectionUtil.getPropertyValue(param.getBean(), desc);
+		
+		Class<?> classHint = param.getCfg().getPropertyClassHint(param.getBean(),name);
+		if(classHint != null) {
+			String subCaption = param.getCfg().generateCaptionForProperty(param.getBean(), name);
+			tabSheet.addTab(new GenericBeanTable().init(new GenericBeanTable.InitParameter(subCaption, name, list, classHint, param.getCfg())) , subCaption);
+		}else{
+			System.out.println(param.getBean() + "." + name + " is ignored because no classhint available");
+		}
+	}
+
+	public Collection<String> getPropertiesToBeShown(final InitParameter param, Map<String, PropertyDescriptor> props) {
+		Collection<String> keys = props.keySet();
+		if (param.getBean().getClass().isAnnotationPresent(XmlType.class)) {
+			XmlType xmlType = param.getBean().getClass().getAnnotation(XmlType.class);
+			keys = Arrays.asList(xmlType.propOrder());
+		}
+		return keys;
+	}
+
 	public boolean isSimpleType(Class<?> type) {
 		Class<?>[] simpleTypes = { String.class, Integer.class, Double.class, int.class, double.class };
 		for (Class<?> t : simpleTypes) {
@@ -112,4 +174,9 @@ public class GenericBeanForm extends VerticalLayout {
 		}
 		return false;
 	}
+
+	public Object getBean() {
+		return initParam == null ? null : initParam.getBean();
+	}
+
 }

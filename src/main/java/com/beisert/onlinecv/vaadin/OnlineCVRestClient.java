@@ -4,10 +4,12 @@ import java.util.List;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
 import com.beisert.onlinecv.vaadin.xsd.OnlineCV;
@@ -61,14 +63,19 @@ public class OnlineCVRestClient {
 		WebTarget target = client.target(serverUrl).path(rootPath + "/onlinecv/dbe");
 
 		Builder builder = target.request();
-		// Response response = builder.get();
-		// String result =
-		// builder.accept(MediaType.APPLICATION_XML).get(String.class);
-		// System.out.println(result);
-		// OnlineCV cv = (OnlineCV) XMLUtils.unmarshal(OnlineCV.class, result);
-
 		OnlineCV cv = builder.accept(MediaType.APPLICATION_JSON).get(OnlineCV.class);
 		return cv;
+	}
+
+	public Response saveCV(OnlineCV cv) {
+		Client client = ClientBuilder.newClient();
+		client.register(OnlineCV.class);
+		WebTarget target = client.target(serverUrl).path(rootPath + "/onlinecv/save");
+
+		Builder builder = target.request();
+
+		Response resp = builder.accept(MediaType.APPLICATION_JSON).post(Entity.entity(cv,MediaType.APPLICATION_JSON));
+		return resp;
 	}
 
 }
