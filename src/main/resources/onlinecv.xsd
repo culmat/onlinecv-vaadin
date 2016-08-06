@@ -16,11 +16,11 @@
 
   <xs:complexType name="personalData">
     <xs:sequence>
-      <xs:element name="lastName" type="xs:string" minOccurs="0"/>
-      <xs:element name="firstName" type="xs:string" minOccurs="0"/>
-      <xs:element name="birthDate" type="simpleDate" minOccurs="0"/>
+      <xs:element name="lastname" type="xs:string" minOccurs="0"/>
+      <xs:element name="firstname" type="xs:string" minOccurs="0"/>
+      <xs:element name="birthday" type="simpleDate" minOccurs="0"/>
       <xs:element name="numberOfChildren" type="xs:int"/>
-      <xs:element name="relationShipStatus" type="relationShipStatus" minOccurs="0"/>
+      <xs:element name="relationshipStatus" type="relationShipStatus" minOccurs="0"/>
       <xs:element name="address" type="addressData" minOccurs="0"/>
       <xs:element name="communicationData" type="communicationData" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
@@ -56,11 +56,11 @@
   <xs:complexType name="userSkill">
     <xs:sequence>
       <xs:element name="category" type="xs:string" minOccurs="0"/>
+      <xs:element name="skill" type="xs:string" minOccurs="0"/>
       <xs:element name="numberOfYears" type="xs:double"/>
       <xs:element name="yearLastUsed" type="xs:int"/>
       <xs:element name="skillLevel" type="skillLevel" minOccurs="0"/>
     </xs:sequence>
-    <xs:attribute name="skill" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="projectData">
@@ -125,4 +125,3 @@
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>
-

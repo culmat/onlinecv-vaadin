@@ -1,4 +1,4 @@
-package com.beisert.onlinecv.vaadin;
+package com.beisert.onlinecv.vaadin.generic;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -14,24 +14,30 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
-public class GenericBeanForm extends HorizontalLayout {
+public class GenericBeanForm extends VerticalLayout {
 
 	private Object bean;
 	private GenericBeanFormConfig cfg;
-
-	public GenericBeanForm init(String title, Object bean, GenericBeanFormConfig cfg) {
+	
+	
+	public GenericBeanForm init(String caption, Object bean, GenericBeanFormConfig cfg) {
 		
 		this.bean = bean;
 		this.cfg = cfg;
 		FormLayout form = new FormLayout();
-		Panel p = new Panel(title);
-		p.setContent(form);
-		addComponent(p);
+		form.setMargin(true);
+		setCaption(caption);
+		
+		TabSheet tabSheet = new TabSheet();
+		tabSheet.addTab(form, "Details");
 
 		Map<String, PropertyDescriptor> props = ReflectionUtil.getPropertyDescriptors(bean.getClass(), "class");
 		Collection<String> keys = props.keySet();
@@ -46,47 +52,57 @@ public class GenericBeanForm extends HorizontalLayout {
 				continue;
 			}
 			PropertyDescriptor desc = props.get(name);
+			if(desc == null) {
+				throw new IllegalStateException(bean + " Property " + name + " not found");
+			}
 			Class<?> type = desc.getPropertyType();
-			if (isSimpleType(type)) {
+			
+			BeanPropertyEditor editor = cfg.getPropertyEditorOrNull(type);
+			
+			if(editor != null){
+				Component comp = editor.createComponent(cfg, bean, desc, cfg.generateCaptionForProperty(bean, name));
+				form.addComponent(comp);
+			}
+			else if (isSimpleType(type)) {
 				BeanItem<Object> item = new BeanItem<Object>(bean, new String[] { name });
-				com.vaadin.ui.TextField text = new TextField(name, item.getItemProperty(name));
+				com.vaadin.ui.TextField text = new TextField(cfg.generateCaptionForProperty(bean, name), item.getItemProperty(name));
 				text.setNullRepresentation("");
+				text.setBuffered(false);
 				form.addComponent(text);
 			} else if (type.isEnum()) {
-//				BeanItem<Object> item = new BeanItem<Object>(bean, new String[] { name });
-//				com.vaadin.ui.TextField text = new TextField(name, item.getItemProperty(name));
-//				form.addComponent(text);
+				GenericBeanEnumComboBox cbo = new GenericBeanEnumComboBox();
+				cbo.init(cfg.generateCaptionForProperty(bean, name), bean, desc, cfg);
+				form.addComponent(cbo);
 			} else if (type.isAssignableFrom(List.class)) {
 				// table
-				List list = (List) invokeGet(bean, desc);
+				List list = (List) ReflectionUtil.getPropertyValue(bean, desc);
 				
 				Class<?> classHint = cfg.getPropertyClassHint(bean,name);
 				if(classHint != null) {
-					form.addComponent(new GenericBeanTable().init(name, name, list, classHint, cfg) );
+					String subCaption = cfg.generateCaptionForProperty(bean, name);
+					tabSheet.addTab(new GenericBeanTable().init(subCaption, name, list, classHint, cfg) , subCaption);
 				}else{
 					System.out.println(bean + "." + name + " is ignored because no classhint available");
 				}
 
 			} else if (type.isAnnotationPresent(XmlType.class)) {
-				Object child = invokeGet(bean, desc);
+				//This is sub struct
+				Object child = ReflectionUtil.getPropertyValue(bean, desc);
 				// Avoid endless loops
-				if (child != bean)
-					form.addComponent(new GenericBeanForm().init(name, child, cfg));
-
+				if (child != bean){
+					String subCaption = cfg.generateCaptionForProperty(bean, name);
+					tabSheet.addTab(new GenericBeanForm().init(caption, child, cfg), subCaption);
+				}
 			}
+		}
+		if(tabSheet.getComponentCount()==1){
+			//Only one compnent we do not need a tabsheet
+			addComponent(form);
+		}else{
+			addComponent(tabSheet);
 		}
 		return this;
 	}
-
-	private Object invokeGet(Object bean, PropertyDescriptor desc) throws IllegalStateException {
-		try {
-			Object child = desc.getReadMethod().invoke(bean, null);
-			return child;
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
 
 	public boolean isSimpleType(Class<?> type) {
 		Class<?>[] simpleTypes = { String.class, Integer.class, Double.class, int.class, double.class };

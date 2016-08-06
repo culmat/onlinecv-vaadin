@@ -2,6 +2,8 @@ package com.beisert.onlinecv.vaadin;
 
 import java.util.List;
 
+import com.beisert.onlinecv.vaadin.generic.GenericBeanForm;
+import com.beisert.onlinecv.vaadin.generic.GenericBeanFormConfig;
 import com.beisert.onlinecv.vaadin.xsd.CommunicationData;
 import com.beisert.onlinecv.vaadin.xsd.GenericContainer;
 import com.beisert.onlinecv.vaadin.xsd.I18NText;
@@ -9,6 +11,7 @@ import com.beisert.onlinecv.vaadin.xsd.LanguageText;
 import com.beisert.onlinecv.vaadin.xsd.OnlineCV;
 import com.beisert.onlinecv.vaadin.xsd.PersonalData;
 import com.beisert.onlinecv.vaadin.xsd.ProjectData;
+import com.beisert.onlinecv.vaadin.xsd.SimpleDate;
 import com.beisert.onlinecv.vaadin.xsd.UserSkill;
 import com.vaadin.annotations.Title;
 import com.vaadin.data.Container.Filter;
@@ -42,12 +45,10 @@ public class OnlineCVUI extends UI {
 	private TextField searchField = new TextField();
 	private Button addNewCVButton = new Button("New");
 	private Button removeCVButton = new Button("Remove this CV");
-	//private FormLayout editorLayout = new FormLayout();
-	//private FieldGroup editorFields = new FieldGroup();
+	
+	private VerticalLayout editAreaLayout = new VerticalLayout();
 	private GenericBeanForm beanForm = new GenericBeanForm();
 
-	private static final String FNAME = "First Name";
-	private static final String LNAME = "Last Name";
 	private static final String CV_NAME = "cvName";
 	private static final String USER = "user";
 	private static final String ID = "id";
@@ -56,15 +57,39 @@ public class OnlineCVUI extends UI {
 	private OnlineCVRestClient restClient = new OnlineCVRestClient();
 
 	private static final String[] fieldNamesList = new String[] { ID, USER, CV_NAME };
-	// private static final String[] fieldNamesList = new String[]{FNAME, LNAME,
-	// USERNAME, "Mobile Phone", "Work Phone", "Home Phone", "Work Email",
-	// "Home Email", "Street", "City", "Zip", "State", "Country"};
 
 	BeanItemContainer<OnlineCV> cvListContainer = createDatasource(OnlineCV.class);
+	private GenericBeanFormConfig cfg;
 
 	protected void init(VaadinRequest request) {
+		
+		// Configure the edit screen
+		this.cfg = new GenericBeanFormConfig();
+		cfg.givePropertyHint(OnlineCV.class, "projects", ProjectData.class);
+		cfg.setPropertyCaption(OnlineCV.class, "cvName", "CV Name");
+		
+		cfg.givePropertyHint(ProjectData.class, "additionalInfo", GenericContainer.class);
+		cfg.givePropertyHint(ProjectData.class, "usedSkills", UserSkill.class);
+		cfg.setShownPropertiesInList(ProjectData.class, "from","to","title","customer","key");
+		
+		cfg.setPropertyEditor(SimpleDate.class, SimpleDateEditor.class);
+		cfg.setPropertyEditor(I18NText.class, I18NTextEditor.class);
+		
+		cfg.setTableColumnConverter(I18NText.class,I18NTableColumnConverter.class);
+		
+		cfg.setTableColumnConverter(SimpleDate.class,SimpleDateTableColumnConverter.class);
+		
+		
+		cfg.givePropertyHint(OnlineCV.class, "userSkills", UserSkill.class);
+		cfg.givePropertyHint(PersonalData.class, "communicationData", CommunicationData.class);
+		cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
+		cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
+		
 		initLayout();
+		
 		initCVList();
+		loadCVList();
+		
 		initEditor();
 		initSearch();
 		initAddRemoveButtons();
@@ -77,7 +102,8 @@ public class OnlineCVUI extends UI {
 
 		VerticalLayout leftLayout = new VerticalLayout();
 		splitPanel.addComponent(leftLayout);
-		splitPanel.addComponent(beanForm);
+		
+		splitPanel.addComponent(editAreaLayout);
 		leftLayout.addComponent(cvList);
 		HorizontalLayout bottomLeftLayout = new HorizontalLayout();
 		leftLayout.addComponent(bottomLeftLayout);
@@ -93,12 +119,13 @@ public class OnlineCVUI extends UI {
 		searchField.setWidth("100%");
 		bottomLeftLayout.setExpandRatio(searchField, 1);
 
-		beanForm.setMargin(true);
-		beanForm.setVisible(false);
+		editAreaLayout.setMargin(true);
+		editAreaLayout.setVisible(false);
 	}
 
 	private void initEditor() {
-		beanForm.addComponent(removeCVButton);
+		editAreaLayout.addComponent(removeCVButton);
+		editAreaLayout.addComponent(beanForm);
 
 	}
 
@@ -143,11 +170,11 @@ public class OnlineCVUI extends UI {
 
 				cvListContainer.removeAllContainerFilters();
 				Object contactId = cvListContainer.addItemAt(0);
-
-				cvList.getContainerProperty(contactId, FNAME).setValue("New");
-				cvList.getContainerProperty(contactId, LNAME).setValue("Contact");
-
-				cvList.select(contactId);
+				//TODO
+//				cvList.getContainerProperty(contactId, FNAME).setValue("New");
+//				cvList.getContainerProperty(contactId, LNAME).setValue("Contact");
+//
+//				cvList.select(contactId);
 			}
 		});
 
@@ -165,18 +192,6 @@ public class OnlineCVUI extends UI {
 		cvList.setSelectable(true);
 		cvList.setImmediate(true);
 		
-		final GenericBeanFormConfig cfg = new GenericBeanFormConfig();
-		cfg.givePropertyHint(OnlineCV.class, "projects", ProjectData.class);
-		cfg.givePropertyHint(ProjectData.class, "additionalInfo", GenericContainer.class);
-		cfg.givePropertyHint(ProjectData.class, "usedSkills", UserSkill.class);
-		
-		
-		cfg.givePropertyHint(OnlineCV.class, "userSkills", UserSkill.class);
-		cfg.givePropertyHint(PersonalData.class, "communicationData", CommunicationData.class);
-		cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
-		cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
-		
-
 		cvList.addValueChangeListener(new Property.ValueChangeListener() {
 			public void valueChange(ValueChangeEvent event) {
 				Object contactId = cvList.getValue();
@@ -185,7 +200,7 @@ public class OnlineCVUI extends UI {
 					Object bean = ((BeanItem<?>)cvList.getItem(contactId)).getBean();
 					beanForm.init("Online CV",bean,cfg);
 				}
-				beanForm.setVisible(contactId != null);
+				editAreaLayout.setVisible(contactId != null);
 			}
 		});
 	}
