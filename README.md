@@ -14,7 +14,9 @@ The special thing about this UI is that:
  * Described here: http://github.com/beisdog/onlinecv and running it. (As described in the README.md) 
 * Checkout the git repository on your local machine: 
  * git clone http://github.com/beisdog/onlinecv-vaadin.git
-* Run $ mvn clean install jetty:run
+* Run maven:
+	* $ cd onlinecv-vaadin
+	* $ mvn clean install jetty:run
 * Open your browser on: http://localhost:8080
 
 # Debugging

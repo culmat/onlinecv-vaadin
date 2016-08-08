@@ -22,6 +22,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -84,7 +85,7 @@ public class GenericBeanTable extends VerticalLayout {
 				
 		calcTablePageLength();
 
-		addToolbar(param);
+		createToolbar(param);
 		addComponent(table);
 		container = new BeanItemContainer(param.getType());
 
@@ -122,24 +123,32 @@ public class GenericBeanTable extends VerticalLayout {
 	}
 
 	public void addSelectRowOpenPopup(InitParameter parameterObject) {
-		table.addItemClickListener( event -> {
-				Object id = table.getValue();
-				BeanItem<?> beanItem = ((BeanItem<?>) table.getItem(id));
-				if (beanItem != null) {
+		table.addValueChangeListener( event -> {
+			openSelectedRowInPopup();
+		});
+	}
+	
 
-					final GenericBeanFormWindow popup = new GenericBeanFormWindow();
-					popup.showWindow(new GenericBeanFormWindow.InitParameter(GenericBeanTable.this, "Details",
-							beanItem.getBean(), parameterObject.getCfg()));
-					popup.getOkButton().setVisible(true);
-					popup.getCancelButton().setVisible(false);
+	public void openSelectedRowInPopup() {
+		Object id = table.getValue();
+		if(id == null) {
+			//Notification.show("Nothing to open");
+			return;
+		}
+		BeanItem<?> beanItem = ((BeanItem<?>) table.getItem(id));
+		if (beanItem != null) {
 
-					popup.getOkButton().addClickListener(evt -> {
-						popup.closeWindow();
-					});
+			final GenericBeanFormWindow popup = new GenericBeanFormWindow();
+			popup.showWindow(new GenericBeanFormWindow.InitParameter(GenericBeanTable.this, "Details",
+					beanItem.getBean(), initParam.getCfg()));
+			popup.getOkButton().setVisible(true);
+			popup.getCancelButton().setVisible(false);
 
-				}
-			}
-		);
+			popup.getOkButton().addClickListener(evt -> {
+				popup.closeWindow();
+			});
+
+		}
 	}
 
 	public void setColumnHeaders(InitParameter parameterObject, Collection<String> keys) {
@@ -164,18 +173,9 @@ public class GenericBeanTable extends VerticalLayout {
 		});
 	}
 	
-	public void addTopBlankRow(){
-		HorizontalLayout row = new HorizontalLayout();
-		row.setSpacing(true);
-		row.setWidth("100%");
-		row.setHeight("50px");
-		Label spacer = new Label();
-		row.addComponents(spacer);
-		row.setExpandRatio(spacer, 1);
-		addComponent(row);
-	}
+	
 
-	public void addToolbar(InitParameter parameterObject) {
+	public void createToolbar(InitParameter parameterObject) {
 		// Buttons
 		HorizontalLayout buttonRow = new HorizontalLayout();
 		buttonRow.setSpacing(true);
@@ -214,8 +214,16 @@ public class GenericBeanTable extends VerticalLayout {
 			calcTablePageLength();
 			markAsDirtyRecursive();
 		});
+		
+		//Edit
+		Button edit = new Button("Edit");
+		edit.setStyleName(ValoTheme.BUTTON_LINK);
+		edit.addClickListener(evt -> {
+			openSelectedRowInPopup();
+		});
+		
 		Label spacer = new Label();
-		buttonRow.addComponents(add,remove,spacer);
+		buttonRow.addComponents(add,remove,edit, spacer);
 		buttonRow.setExpandRatio(spacer, 1);
 		addComponent(buttonRow);
 	}
