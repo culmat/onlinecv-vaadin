@@ -1,13 +1,12 @@
-# onlinecv-vaadin
-Vaadin UI for the online CV
+# Vaadin UI for the Online CV
 
 The Online CV is a showcase to show the combination of different technologies like jersey rest, jaxb, mongo db, vaadin and jongo(http://jongo.org).
 
 This project contains only the UI part that accesses the online CV rest services.
 The rest services are implemented here : (https://github.com/beisdog/onlinecv.git). Please read the documentation there.
 
-## Noteworthy Architecture Design Decisions of the UI project
-### domain object generation from xsd file
+## Noteworthy Architecture Design Decisions of the UI Project
+### Domain Object Generation from Xsd File
 The UI project generates the domain objects for the online cv from a schema file that was provided by the [rest services project](https://github.com/beisdog/onlinecv). The java generator from xsd is invoked from the maven pom.xml
 
 You can get the xsd by calling the rest service ["/rest/onlinecv/xsd"](http://localhost:8888/rest/onlinecv/xsd).
@@ -19,7 +18,7 @@ In this way you can add just new properties or objects in the domain layer and t
 
 The implementation details can be found in the following places:
 
-* [OnlineCVUI](/src/main/java/com/beisert/onlinecv/vaadin/OnlineCVUI.java)
+* [com.beisert.onlinecv.vaadin.OnlineCVUI](/src/main/java/com/beisert/onlinecv/vaadin/OnlineCVUI.java)
 In the method `init(VaadinRequest)` you can find how the generic UI is customized and used.
 
 Method: `init(VaadinRequest)`
@@ -74,16 +73,16 @@ In the method `initEditor()` the GenericBeanForm is initialized.
 * Before you can run the UI you must install and run the Rest server part: 
  * Described here: http://github.com/beisdog/onlinecv 
 * Checkout the git repository on your local machine: 
- * git clone http://github.com/beisdog/onlinecv-vaadin.git
+ * `git clone http://github.com/beisdog/onlinecv-vaadin.git`
 * Run maven:
-	* $ cd onlinecv-vaadin
-	* $ mvn clean install jetty:run
+	* `cd onlinecv-vaadin`
+	* `mvn clean install jetty:run`
 * Open your browser on: http://localhost:8080
 
 # Debugging
 To debug set these MAVEN_OPTS in your console:
 
-$ export MAVEN_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+`export MAVEN_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n`
 
 Then in your eclipse create a new Remote Debugging configuration and connect to port 8000
 
@@ -99,4 +98,4 @@ The following technologies are shown:
 * PDF Generation
 * Picture upload
 * Security
-* Generation of template files (Vaadin design files) that can be modified by the User to adjust the Uis without coding.
+* Generation of template files (Vaadin design files) that can be modified by the User to adjust the UIs without coding.

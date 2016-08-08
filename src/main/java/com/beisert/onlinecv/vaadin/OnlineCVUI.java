@@ -2,6 +2,7 @@ package com.beisert.onlinecv.vaadin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -354,9 +355,9 @@ public class OnlineCVUI extends UI {
 			if (selected != null) {
 				final String id = selected.getId();
 				if (id != null) {
-					OnlineCV foundInList = list.stream().filter(cv -> id.equals(cv.getId())).findFirst().get();
-					if (foundInList != null) {
-						cvList.select(foundInList);
+					Optional<OnlineCV> foundInList = list.stream().filter(cv -> id.equals(cv.getId())).findFirst();
+					if (foundInList.isPresent()) {
+						cvList.select(foundInList.get());
 					}
 				} else {
 					editAreaLayout.setVisible(false);
