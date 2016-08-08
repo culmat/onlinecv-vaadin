@@ -7,7 +7,7 @@ The rest services are implemented here : (https://github.com/beisdog/onlinecv.gi
 
 ## Noteworthy Architecture Design Decisions of the UI Project
 ### Domain Object Generation from Xsd File
-The UI project generates the domain objects for the online cv from a schema file that was provided by the [rest services project](https://github.com/beisdog/onlinecv). The java generator from xsd is invoked from the maven pom.xml
+The UI project generates the domain objects for the Online CV from a schema file that was provided by the [rest services project](https://github.com/beisdog/onlinecv). The java generator from xsd is invoked from the maven pom.xml
 
 You can get the xsd by calling the rest service ["/rest/onlinecv/xsd"](http://localhost:8888/rest/onlinecv/xsd).
 ## Dynamic UI
