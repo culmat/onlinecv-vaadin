@@ -35,6 +35,7 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class GenericBeanTable extends VerticalLayout {
 
+	private static final long serialVersionUID = 1L;
 	private Table table = null;
 	private BeanItemContainer<? super Object> container = null;
 	private InitParameter initParam;
@@ -78,6 +79,7 @@ public class GenericBeanTable extends VerticalLayout {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public GenericBeanTable init(InitParameter param) {
 		this.initParam = param;
 		setCaption(param.getCaption());
@@ -85,7 +87,7 @@ public class GenericBeanTable extends VerticalLayout {
 				
 		calcTablePageLength();
 
-		createToolbar(param);
+		createToolbar();
 		addComponent(table);
 		container = new BeanItemContainer(param.getType());
 
@@ -103,7 +105,7 @@ public class GenericBeanTable extends VerticalLayout {
 		table.setImmediate(true);
 
 		setColumnHeaders(param, keys);
-		addSelectRowOpenPopup(param);
+		initRowSelectionListener();
 		
 		return this;
 
@@ -122,7 +124,7 @@ public class GenericBeanTable extends VerticalLayout {
 		return keys;
 	}
 
-	public void addSelectRowOpenPopup(InitParameter parameterObject) {
+	public void initRowSelectionListener() {
 		table.addValueChangeListener( event -> {
 			openSelectedRowInPopup();
 		});
@@ -175,7 +177,7 @@ public class GenericBeanTable extends VerticalLayout {
 	
 	
 
-	public void createToolbar(InitParameter parameterObject) {
+	public void createToolbar() {
 		// Buttons
 		HorizontalLayout buttonRow = new HorizontalLayout();
 		buttonRow.setSpacing(true);
@@ -186,15 +188,15 @@ public class GenericBeanTable extends VerticalLayout {
 
 		add.addClickListener(evt -> {
 			
-			final Object newBean = ReflectionUtil.newInstance(parameterObject.getType());
+			final Object newBean = ReflectionUtil.newInstance(this.initParam.getType());
 			final GenericBeanFormWindow popup = new GenericBeanFormWindow();
 			popup.showWindow(new GenericBeanFormWindow.InitParameter(GenericBeanTable.this, "New", newBean,
-					parameterObject.getCfg()));
+					this.initParam.getCfg()));
 			popup.getOkButton().setVisible(true);
 			popup.getCancelButton().setVisible(true);
 			
 			popup.getOkButton().addClickListener(okEvt -> {
-				parameterObject.getList().add(newBean);
+				this.initParam.getList().add(newBean);
 				container.addBean(newBean);
 				calcTablePageLength();
 				markAsDirtyRecursive();
@@ -209,7 +211,7 @@ public class GenericBeanTable extends VerticalLayout {
 		
 		remove.addClickListener(event ->   {
 			Object row = table.getValue();
-			parameterObject.getList().remove(row);
+			this.initParam.getList().remove(row);
 			container.removeItem(row);
 			calcTablePageLength();
 			markAsDirtyRecursive();
