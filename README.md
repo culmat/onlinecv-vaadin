@@ -36,7 +36,7 @@ cfg.givePropertyHint(Project.class, "additionalInfos", GenericContainer.class);
 cfg.givePropertyHint(Project.class, "usedSkills", UserSkill.class);
 cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
 cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
-cfg.setPropertyCaption(OnlineCV.class, "cvName", "CV Name");
+cfg.setPropertyCaption(OnlineCV.class, "name", "CV Name");
 cfg.setShownPropertiesInList(Project.class, "from", "to", "title", "customer", "key");
 cfg.setPropertyEditor(SimpleDate.class, SimpleDateEditor.class);
 cfg.setPropertyEditor(I18NText.class, I18NTextEditor.class);

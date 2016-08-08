@@ -90,21 +90,15 @@ public class OnlineCVUI extends UI {
 		cfg.givePropertyHint(OnlineCV.class, "education", Education.class);
 		cfg.givePropertyHint(OnlineCV.class, "certifications", Certification.class);
 		cfg.givePropertyHint(OnlineCV.class, "languageSkills", LanguageSkill.class);
-		
 		cfg.givePropertyHint(PersonalData.class, "communicationData", CommunicationData.class);
-		
 		cfg.givePropertyHint(Project.class, "additionalInfos", GenericContainer.class);
 		cfg.givePropertyHint(Project.class, "usedSkills", UserSkill.class);
-		
 		cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
-		
 		cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
-		
-		cfg.setPropertyCaption(OnlineCV.class, "cvName", "CV Name");
+		cfg.setPropertyCaption(OnlineCV.class, "name", "CV Name");
 		cfg.setShownPropertiesInList(Project.class, "from", "to", "title", "customer", "key");
 		cfg.setPropertyEditor(SimpleDate.class, SimpleDateEditor.class);
 		cfg.setPropertyEditor(I18NText.class, I18NTextEditor.class);
-
 		cfg.setTableColumnConverter(I18NText.class, I18NTableColumnConverter.class);
 		cfg.setTableColumnConverter(SimpleDate.class, SimpleDateTableColumnConverter.class);
 		cfg.setTableColumnConverter(int.class, PlainIntegerConverter.class);
