@@ -94,3 +94,9 @@ The following technologies are shown:
 * Jersey Rest client
 * A self developed framework to quickly generate UIs
 * Jaxb Java class  generation from schema file according to rest layer.
+
+# TODOs
+* PDF Generation
+* Picture upload
+* Security
+* Generation of template files (Vaadin design files) that can be modified by the User to adjust the Uis without coding.
