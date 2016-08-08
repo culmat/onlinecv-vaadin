@@ -67,31 +67,31 @@ In the method `initEditor()` the GenericBeanForm is initialized.
 * `GenericBeanFormConfig`: Customization object to influence the UI generation. Explained in the previous section.
 
 # Getting it to run
-* Before you can run the UI you must install and run the Rest server part: 
- * Described here: http://github.com/beisdog/onlinecv 
-* Checkout the git repository on your local machine: 
+* before you can run the UI you must install and run the Rest server part: 
+ * described here: http://github.com/beisdog/onlinecv 
+* checkout the git repository on your local machine: 
  * `git clone http://github.com/beisdog/onlinecv-vaadin.git`
-* Run maven:
+* run maven:
 	* `cd onlinecv-vaadin`
 	* `mvn clean install jetty:run`
-* Open your browser on: http://localhost:8080
+* open your browser on: http://localhost:8080
 
 # Debugging
 To debug set these MAVEN_OPTS in your console:
 
 `export MAVEN_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n`
 
-Then in your eclipse create a new Remote Debugging configuration and connect to port 8000
+Then in your eclipse create a new Remote Debugging configuration and connect to port 8000.
 
 # Technologies involved
 The following technologies are shown:
 * Vaadin
 * Java 8
 * Jersey Rest client
-* A self developed framework to quickly generate UIs
+* a self developed framework to quickly generate UIs
 * Jaxb Java class  generation from schema file according to rest layer.
 
-# TODOs
+# Roadmap
 * PDF Generation
 * Picture upload
 * Security
