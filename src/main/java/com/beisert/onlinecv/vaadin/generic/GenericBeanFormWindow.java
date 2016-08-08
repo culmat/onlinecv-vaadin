@@ -4,6 +4,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -75,8 +76,8 @@ public class GenericBeanFormWindow extends Window {
 		}
 	}
 
-	private Button cancelButton = new Button("Cancel", FontAwesome.TIMES);
-	private Button okButton = new Button("OK", FontAwesome.CHECK);
+	private Button cancelButton = new Button("Cancel");
+	private Button okButton = new Button("OK");
 	private InitParameter initParam;
 
 	public GenericBeanFormWindow showWindow(InitParameter parameterObject) {
@@ -138,9 +139,14 @@ public class GenericBeanFormWindow extends Window {
 	public HorizontalLayout initButtonRow(InitParameter parameterObject) {
 		HorizontalLayout buttonRow = new HorizontalLayout();
 		okButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		
+		Label spacer = new Label();
 
-		buttonRow.addComponent(okButton);
-		buttonRow.addComponent(cancelButton);
+		buttonRow.addComponents(spacer,okButton,cancelButton);
+		buttonRow.setExpandRatio(spacer,1);
+		buttonRow.setStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
+		buttonRow.setWidth("100%");
+		buttonRow.setSpacing(true);
 
 		okButton.addClickListener(evt -> closeWindow());
 		cancelButton.addClickListener(evt -> closeWindow());

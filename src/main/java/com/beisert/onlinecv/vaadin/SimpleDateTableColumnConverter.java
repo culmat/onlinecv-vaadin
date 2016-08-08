@@ -29,7 +29,7 @@ public class SimpleDateTableColumnConverter implements Converter<String, SimpleD
 	@Override
 	public String convertToPresentation(SimpleDate value, Class<? extends String> targetType, Locale locale)
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat format = new SimpleDateFormat("yyyy-MM");
 		if(value == null) return "";
 		Date d = DateUtil.createDate(value.getYear(), value.getMonth(), value.getDay());
 		return format.format(d);

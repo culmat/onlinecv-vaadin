@@ -8,10 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.beisert.onlinecv.vaadin.generic.GenericBeanFormConfig.BeanConfig.PropertyConfig;
-import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
-import com.beisert.onlinecv.vaadin.xsd.ProjectData;
 import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.Component;
 
 /**
  * This class serves hints and UI customization to the {@link GenericBeanForm} classes in this package.

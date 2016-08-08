@@ -9,8 +9,12 @@
       <xs:element name="user" type="xs:string" minOccurs="0"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="personalData" type="personalData" minOccurs="0"/>
+      <xs:element name="education" type="education" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="certifications" type="certification" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="jobs" type="job" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="languageSkills" type="languageSkill" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="userSkills" type="userSkill" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="projects" type="projectData" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="projects" type="project" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -20,9 +24,12 @@
       <xs:element name="firstname" type="xs:string" minOccurs="0"/>
       <xs:element name="birthday" type="simpleDate" minOccurs="0"/>
       <xs:element name="numberOfChildren" type="xs:int"/>
+      <xs:element name="citizenship" type="i18NText" minOccurs="0"/>
+      <xs:element name="hobbies" type="i18NText" minOccurs="0"/>
       <xs:element name="relationshipStatus" type="relationShipStatus" minOccurs="0"/>
       <xs:element name="address" type="addressData" minOccurs="0"/>
       <xs:element name="communicationData" type="communicationData" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="additionalInfos" type="genericContainer" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -53,26 +60,13 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="userSkill">
+  <xs:complexType name="education">
     <xs:sequence>
-      <xs:element name="category" type="xs:string" minOccurs="0"/>
-      <xs:element name="skill" type="xs:string" minOccurs="0"/>
-      <xs:element name="numberOfYears" type="xs:double"/>
-      <xs:element name="yearLastUsed" type="xs:int"/>
-      <xs:element name="skillLevel" type="skillLevel" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="projectData">
-    <xs:sequence>
-      <xs:element name="key" type="xs:string" minOccurs="0"/>
-      <xs:element name="title" type="i18NText" minOccurs="0"/>
-      <xs:element name="usedSkills" type="userSkill" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="description" type="i18NText" minOccurs="0"/>
       <xs:element name="from" type="simpleDate" minOccurs="0"/>
       <xs:element name="to" type="simpleDate" minOccurs="0"/>
-      <xs:element name="customer" type="xs:string" minOccurs="0"/>
-      <xs:element name="additionalInfos" type="genericContainer" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="title" type="i18NText" minOccurs="0"/>
+      <xs:element name="description" type="i18NText" minOccurs="0"/>
+      <xs:element name="company" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -87,6 +81,54 @@
     <xs:sequence>
       <xs:element name="locale" type="locale" minOccurs="0"/>
       <xs:element name="text" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="certification">
+    <xs:sequence>
+      <xs:element name="from" type="simpleDate" minOccurs="0"/>
+      <xs:element name="title" type="i18NText" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="job">
+    <xs:sequence>
+      <xs:element name="from" type="simpleDate" minOccurs="0"/>
+      <xs:element name="to" type="simpleDate" minOccurs="0"/>
+      <xs:element name="title" type="i18NText" minOccurs="0"/>
+      <xs:element name="description" type="i18NText" minOccurs="0"/>
+      <xs:element name="company" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="languageSkill">
+    <xs:sequence>
+      <xs:element name="locale" type="locale" minOccurs="0"/>
+      <xs:element name="skillLevel" type="languageSkillLevel" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="userSkill">
+    <xs:sequence>
+      <xs:element name="category" type="category" minOccurs="0"/>
+      <xs:element name="skill" type="xs:string" minOccurs="0"/>
+      <xs:element name="numberOfYears" type="xs:double"/>
+      <xs:element name="yearLastUsed" type="xs:int"/>
+      <xs:element name="skillLevel" type="skillLevel" minOccurs="0"/>
+      <xs:element name="mainSkill" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="project">
+    <xs:sequence>
+      <xs:element name="key" type="xs:string" minOccurs="0"/>
+      <xs:element name="title" type="i18NText" minOccurs="0"/>
+      <xs:element name="usedSkills" type="userSkill" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="description" type="i18NText" minOccurs="0"/>
+      <xs:element name="from" type="simpleDate" minOccurs="0"/>
+      <xs:element name="to" type="simpleDate" minOccurs="0"/>
+      <xs:element name="customer" type="xs:string" minOccurs="0"/>
+      <xs:element name="additionalInfos" type="genericContainer" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -117,20 +159,41 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="skillLevel">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="BEGINNER"/>
-      <xs:enumeration value="GOOD_EXPERIENCE"/>
-      <xs:enumeration value="EXPERT"/>
-    </xs:restriction>
-  </xs:simpleType>
-
   <xs:simpleType name="locale">
     <xs:restriction base="xs:string">
       <xs:enumeration value="ENGLISH"/>
       <xs:enumeration value="FRENCH"/>
       <xs:enumeration value="ITALIAN"/>
       <xs:enumeration value="GERMAN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="languageSkillLevel">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MOTHERTONGUE"/>
+      <xs:enumeration value="VERY_GOOD"/>
+      <xs:enumeration value="GOOD"/>
+      <xs:enumeration value="BASIC"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="category">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PROGRAMMING"/>
+      <xs:enumeration value="DATABASE"/>
+      <xs:enumeration value="METHODS"/>
+      <xs:enumeration value="TOOLS"/>
+      <xs:enumeration value="OS"/>
+      <xs:enumeration value="SAP"/>
+      <xs:enumeration value="FRAMEWORKS"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="skillLevel">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BEGINNER"/>
+      <xs:enumeration value="GOOD_EXPERIENCE"/>
+      <xs:enumeration value="EXPERT"/>
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

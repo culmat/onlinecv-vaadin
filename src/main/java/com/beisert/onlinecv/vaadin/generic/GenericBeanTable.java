@@ -21,6 +21,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -80,9 +81,10 @@ public class GenericBeanTable extends VerticalLayout {
 		this.initParam = param;
 		setCaption(param.getCaption());
 		this.table = new Table();
+				
 		calcTablePageLength();
 
-		initToolbar(param);
+		addToolbar(param);
 		addComponent(table);
 		container = new BeanItemContainer(param.getType());
 
@@ -101,6 +103,7 @@ public class GenericBeanTable extends VerticalLayout {
 
 		setColumnHeaders(param, keys);
 		addSelectRowOpenPopup(param);
+		
 		return this;
 
 	}
@@ -119,10 +122,7 @@ public class GenericBeanTable extends VerticalLayout {
 	}
 
 	public void addSelectRowOpenPopup(InitParameter parameterObject) {
-		table.addItemClickListener(new ItemClickListener() {
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
+		table.addItemClickListener( event -> {
 				Object id = table.getValue();
 				BeanItem<?> beanItem = ((BeanItem<?>) table.getItem(id));
 				if (beanItem != null) {
@@ -139,7 +139,7 @@ public class GenericBeanTable extends VerticalLayout {
 
 				}
 			}
-		});
+		);
 	}
 
 	public void setColumnHeaders(InitParameter parameterObject, Collection<String> keys) {
@@ -163,10 +163,24 @@ public class GenericBeanTable extends VerticalLayout {
 			}
 		});
 	}
+	
+	public void addTopBlankRow(){
+		HorizontalLayout row = new HorizontalLayout();
+		row.setSpacing(true);
+		row.setWidth("100%");
+		row.setHeight("50px");
+		Label spacer = new Label();
+		row.addComponents(spacer);
+		row.setExpandRatio(spacer, 1);
+		addComponent(row);
+	}
 
-	public void initToolbar(InitParameter parameterObject) {
+	public void addToolbar(InitParameter parameterObject) {
 		// Buttons
 		HorizontalLayout buttonRow = new HorizontalLayout();
+		buttonRow.setSpacing(true);
+		buttonRow.setWidth("100%");
+		buttonRow.setStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
 		Button add = new Button("New", FontAwesome.PLUS);
 		add.setStyleName(ValoTheme.BUTTON_LINK);
 
@@ -192,21 +206,17 @@ public class GenericBeanTable extends VerticalLayout {
 		// REMOVE selected
 		Button remove = new Button("Remove", FontAwesome.TRASH);
 		remove.setStyleName(ValoTheme.BUTTON_LINK);
-		ClickListener removeListener = new ClickListener() {
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				Object row = table.getValue();
-				parameterObject.getList().remove(row);
-				container.removeItem(row);
-				calcTablePageLength();
-				markAsDirtyRecursive();
-			}
-		};
-		remove.addClickListener(removeListener);
-
-		buttonRow.addComponent(add);
-		buttonRow.addComponent(remove);
+		
+		remove.addClickListener(event ->   {
+			Object row = table.getValue();
+			parameterObject.getList().remove(row);
+			container.removeItem(row);
+			calcTablePageLength();
+			markAsDirtyRecursive();
+		});
+		Label spacer = new Label();
+		buttonRow.addComponents(add,remove,spacer);
+		buttonRow.setExpandRatio(spacer, 1);
 		addComponent(buttonRow);
 	}
 

@@ -8,15 +8,18 @@ import javax.ws.rs.core.Response;
 import com.beisert.onlinecv.vaadin.generic.GenericBeanForm;
 import com.beisert.onlinecv.vaadin.generic.GenericBeanFormConfig;
 import com.beisert.onlinecv.vaadin.generic.PlainIntegerConverter;
-import com.beisert.onlinecv.vaadin.util.ReflectionUtil;
 import com.beisert.onlinecv.vaadin.xsd.AddressData;
+import com.beisert.onlinecv.vaadin.xsd.Certification;
 import com.beisert.onlinecv.vaadin.xsd.CommunicationData;
+import com.beisert.onlinecv.vaadin.xsd.Education;
 import com.beisert.onlinecv.vaadin.xsd.GenericContainer;
 import com.beisert.onlinecv.vaadin.xsd.I18NText;
+import com.beisert.onlinecv.vaadin.xsd.Job;
+import com.beisert.onlinecv.vaadin.xsd.LanguageSkill;
 import com.beisert.onlinecv.vaadin.xsd.LanguageText;
 import com.beisert.onlinecv.vaadin.xsd.OnlineCV;
 import com.beisert.onlinecv.vaadin.xsd.PersonalData;
-import com.beisert.onlinecv.vaadin.xsd.ProjectData;
+import com.beisert.onlinecv.vaadin.xsd.Project;
 import com.beisert.onlinecv.vaadin.xsd.SimpleDate;
 import com.beisert.onlinecv.vaadin.xsd.UserSkill;
 import com.vaadin.annotations.Theme;
@@ -27,16 +30,13 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -63,7 +63,7 @@ public class OnlineCVUI extends UI {
 	private Button addNewCVButton = new Button("New", FontAwesome.FILE_O);
 	// private Button removeCVButton = new Button("Remove this CV");
 	private Button saveCVButton = new Button("Save", FontAwesome.SAVE);
-	private Button cancelButton = new Button("Cancel", FontAwesome.TIMES);
+	private Button cancelButton = new Button("Reload");
 
 	private VerticalLayout editAreaLayout = new VerticalLayout();
 	private GenericBeanForm beanForm = new GenericBeanForm();
@@ -84,13 +84,24 @@ public class OnlineCVUI extends UI {
 
 		// Configure the edit screen
 		this.cfg = new GenericBeanFormConfig();
-		cfg.givePropertyHint(OnlineCV.class, "projects", ProjectData.class);
+		cfg.givePropertyHint(OnlineCV.class, "projects", Project.class);
+		cfg.givePropertyHint(OnlineCV.class, "userSkills", UserSkill.class);
+		cfg.givePropertyHint(OnlineCV.class, "jobs", Job.class);
+		cfg.givePropertyHint(OnlineCV.class, "education", Education.class);
+		cfg.givePropertyHint(OnlineCV.class, "certifications", Certification.class);
+		cfg.givePropertyHint(OnlineCV.class, "languageSkills", LanguageSkill.class);
+		
+		cfg.givePropertyHint(PersonalData.class, "communicationData", CommunicationData.class);
+		
+		cfg.givePropertyHint(Project.class, "additionalInfos", GenericContainer.class);
+		cfg.givePropertyHint(Project.class, "usedSkills", UserSkill.class);
+		
+		cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
+		
+		cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
+		
 		cfg.setPropertyCaption(OnlineCV.class, "cvName", "CV Name");
-
-		cfg.givePropertyHint(ProjectData.class, "additionalInfo", GenericContainer.class);
-		cfg.givePropertyHint(ProjectData.class, "usedSkills", UserSkill.class);
-		cfg.setShownPropertiesInList(ProjectData.class, "from", "to", "title", "customer", "key");
-
+		cfg.setShownPropertiesInList(Project.class, "from", "to", "title", "customer", "key");
 		cfg.setPropertyEditor(SimpleDate.class, SimpleDateEditor.class);
 		cfg.setPropertyEditor(I18NText.class, I18NTextEditor.class);
 
@@ -101,10 +112,6 @@ public class OnlineCVUI extends UI {
 		cfg.setTableColumnConverter(Integer.class, PlainIntegerConverter.class);
 		cfg.setFormFieldConverter(Integer.class, PlainIntegerConverter.class);
 
-		cfg.givePropertyHint(OnlineCV.class, "userSkills", UserSkill.class);
-		cfg.givePropertyHint(PersonalData.class, "communicationData", CommunicationData.class);
-		cfg.givePropertyHint(GenericContainer.class, "children", GenericContainer.class);
-		cfg.givePropertyHint(I18NText.class, "languageTexts", LanguageText.class);
 
 		initLayout();
 
@@ -119,11 +126,21 @@ public class OnlineCVUI extends UI {
 	private void initLayout() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.setHeight("100%");
+		mainLayout.setSizeFull();
+		
 		// Header
 		HorizontalLayout header = initHeader();
 		mainLayout.addComponent(header);
+		
 		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
 		mainLayout.addComponent(splitPanel);
+		mainLayout.setExpandRatio(splitPanel, 1);
+		
+		splitPanel.setSplitPosition(25,Sizeable.Unit.PERCENTAGE);
+		splitPanel.setSizeFull();
+		splitPanel.setHeight("100%");
+		
 		setContent(mainLayout);
 
 		VerticalLayout leftLayout = new VerticalLayout();
@@ -137,6 +154,7 @@ public class OnlineCVUI extends UI {
 		// bottomLeftLayout.addComponent(addNewCVButton);
 
 		leftLayout.setSizeFull();
+		leftLayout.setHeight("100%");
 
 		leftLayout.setExpandRatio(cvList, 1);
 		cvList.setSizeFull();
@@ -151,6 +169,7 @@ public class OnlineCVUI extends UI {
 
 	public HorizontalLayout initHeader() {
 		HorizontalLayout header = new HorizontalLayout();
+		
 		header.setSpacing(true);
 		
 		String[] fields = { "serverUrl", "rootPath" };
@@ -170,6 +189,7 @@ public class OnlineCVUI extends UI {
 		
 		Button buttonLoad = new Button("Load CVs",FontAwesome.REFRESH);
 		buttonLoad.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		buttonLoad.setStyleName(ValoTheme.BUTTON_SMALL, true);
 		
 		
 		buttonLoad.addClickListener(evt -> {
@@ -201,11 +221,14 @@ public class OnlineCVUI extends UI {
 
 	private void initEditor() {
 		HorizontalLayout buttonRow = new HorizontalLayout();
+		buttonRow.setSpacing(true);
+		buttonRow.setWidth("100%");
+		buttonRow.setStyleName(ValoTheme.WINDOW_TOP_TOOLBAR);
 		// buttonRow.addComponent(removeCVButton);
-		buttonRow.addComponent(addNewCVButton);
-		buttonRow.addComponent(saveCVButton);
-		buttonRow.addComponent(cancelButton);
+		Label spacer = new Label();
+		buttonRow.addComponents(addNewCVButton,saveCVButton,spacer, cancelButton);
 		editAreaLayout.addComponent(buttonRow);
+		buttonRow.setExpandRatio(spacer, 1);
 		editAreaLayout.addComponent(beanForm);
 
 	}
@@ -243,7 +266,7 @@ public class OnlineCVUI extends UI {
 	}
 
 	private void initButtons() {
-		addNewCVButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		addNewCVButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addNewCVButton.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 
@@ -268,9 +291,8 @@ public class OnlineCVUI extends UI {
 		// }
 		// });
 		this.saveCVButton.setIcon(FontAwesome.SAVE);
-		saveCVButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-		this.saveCVButton.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {
+		saveCVButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		this.saveCVButton.addClickListener( event-> {
 				OnlineCV cv = (OnlineCV) beanForm.getBean();
 				if (cv != null) {
 					Response r = restClient.saveCV(cv);
@@ -282,13 +304,12 @@ public class OnlineCVUI extends UI {
 					Notification.show("No CV selected", Type.ERROR_MESSAGE);
 				}
 			}
-		});
+		);
 		this.cancelButton.setStyleName(ValoTheme.BUTTON_DANGER);
-		this.cancelButton.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {
+		this.cancelButton.addClickListener( event -> {
 				loadCVList();
 			}
-		});
+		);
 	}
 
 	private void initCVList() {
