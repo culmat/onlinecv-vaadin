@@ -203,6 +203,8 @@ public class OnlineCVUI extends UI {
 		final String[][] urls = {
 				{"Open REST: All CVs",urlMain +"?format=json"},
 				{"Open REST: CV xsd",urlMain +"/xsd"},
+				{"Restinterface Startpage",restClient.serverUrl},
+				
 		};
 		for(int i=0;i<urls.length;i++){
 			String caption = urls[i][0];
@@ -345,6 +347,10 @@ public class OnlineCVUI extends UI {
 		} catch (Exception e) {
 			Notification.show(e.toString() , Type.ERROR_MESSAGE);
 			e.printStackTrace();
+		}
+		if(list == null){
+			Notification.show("Load data failed! returned list is null"  , Type.ERROR_MESSAGE);
+			return;
 		}
 		this.cvListContainer.removeAllItems();
 		this.cvListContainer.addAll(list);
