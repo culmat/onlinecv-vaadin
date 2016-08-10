@@ -73,7 +73,7 @@ In the method `initEditor()` the GenericBeanForm is initialized.
 * run maven:
 	* `cd onlinecv-vaadin`
 	* `mvn clean install jetty:run`
-* open your browser on: http://localhost:8080
+* open your browser on: [http://localhost:8080](http://localhost:8080)
 
 # Debugging
 To debug set these MAVEN_OPTS in your console:
